@@ -4,6 +4,11 @@ import { Newspaper as NewsIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { STOCK_IMAGES } from "@/components/StockImagePicker";
+
+function getFallbackImageForIndex(index: number): string {
+  return STOCK_IMAGES[index % STOCK_IMAGES.length]?.url ?? "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=800";
+}
 
 type NewsItem = {
   id: string;
@@ -62,13 +67,16 @@ const NewsSection = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {latestNews.map((news) => (
+            {latestNews.map((news, index) => (
               <Card key={news.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="h-48 overflow-hidden">
                   <img 
-                    src={news.image} 
+                    src={news.image || getFallbackImageForIndex(index)} 
                     alt={news.title} 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = getFallbackImageForIndex(index);
+                    }}
                   />
                 </div>
                 <CardContent className="flex-grow pt-6">

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Image as LucideImage, Upload } from "lucide-react";
@@ -17,6 +17,13 @@ const ImageUpload = ({ onImageSelected, initialImage, bucketName = "athlete-imag
   const [previewUrl, setPreviewUrl] = useState<string>(initialImage || "");
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (initialImage) {
+      setImageUrl(initialImage);
+      setPreviewUrl(initialImage);
+    }
+  }, [initialImage]);
 
   // Handle image URL input change
   const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {

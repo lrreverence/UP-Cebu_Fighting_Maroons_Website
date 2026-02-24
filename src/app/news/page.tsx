@@ -18,7 +18,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import ImageUpload from "@/components/ImageUpload";
+import StockImagePicker from "@/components/StockImagePicker";
+import { STOCK_IMAGES } from "@/components/StockImagePicker";
 import { Skeleton } from "@/components/ui/skeleton";
+
+function getFallbackImageForIndex(index: number): string {
+  return STOCK_IMAGES[index % STOCK_IMAGES.length]?.url ?? "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=800";
+}
 
 type NewsItem = {
   id: string;
@@ -124,7 +130,7 @@ export default function NewsPage() {
             excerpt: data.excerpt,
             category: data.category,
             date: formattedDate,
-            image: imageUrl || '/uploads/29b19ee1-3d5a-4c33-847d-777900e20bfc.png', // Use uploaded image or default
+            image: imageUrl || getFallbackImageForIndex(allNews.length),
             reference_link: data.reference_link || null
           }
         ]);
@@ -275,6 +281,10 @@ export default function NewsPage() {
                       initialImage={imageUrl}
                       bucketName="news-images"
                     />
+                    <StockImagePicker
+                      onSelect={handleImageSelected}
+                      selectedUrl={imageUrl}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="reference_link" className="text-sm font-medium">Reference Link</label>
@@ -316,13 +326,16 @@ export default function NewsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
-              {allNews.map((news) => (
+              {allNews.map((news, index) => (
                 <Card key={news.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="h-48 overflow-hidden">
                     <img 
-                      src={news.image} 
+                      src={news.image || getFallbackImageForIndex(index)} 
                       alt={news.title} 
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = getFallbackImageForIndex(index);
+                      }}
                     />
                   </div>
                   <CardContent className="flex-grow pt-6">
@@ -429,6 +442,10 @@ export default function NewsPage() {
                 onImageSelected={handleImageSelected}
                 initialImage={imageUrl}
                 bucketName="news-images"
+              />
+              <StockImagePicker
+                onSelect={handleImageSelected}
+                selectedUrl={imageUrl}
               />
             </div>
             <div className="space-y-2">
